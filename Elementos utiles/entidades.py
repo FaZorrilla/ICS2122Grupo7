@@ -13,9 +13,6 @@ Lista_Barcos = map(lambda x: Barcos(*x), lista)
 # visualización
 print(list(Lista_Barcos))
 
-## TEPS
-TEPS = namedtuple("Teps_type", ["ide", "ocupado", "velocidad"])
-
 ## CAMIONES
 Camiones = namedtuple("Camiones_type", ["ide", "capacidad", "carga"])
 
