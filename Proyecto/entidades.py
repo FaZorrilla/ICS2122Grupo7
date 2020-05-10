@@ -7,8 +7,8 @@ from Proyecto.imports import info_barco, trabajo, cont_enviado, \
 Barcos = namedtuple("Barcos_type", ["ide", "capacidad", "arribo", "partida",
                                     "lista_carga", "lista_descarga",
                                     "tipo", "pen", "entro"])
-Camiones = namedtuple("Camiones_type", ["ide", "capacidad", "carga"])
-Cointeiners = namedtuple("Conteiners_type", ["ide", "posicion", "tipo"])
+Camiones = namedtuple("Camiones_type", ["ide", "carga"])
+Containers = namedtuple("Conteiners_type", ["ide", "posicion", "tipo"])
 
 
 def crear_barcos(info_contenedores, info_arribos, info_barco):
@@ -24,9 +24,17 @@ def crear_barcos(info_contenedores, info_arribos, info_barco):
     return Lista_Barcos
 
 
-def crear_conteiners():
-    pass
+def crear_conteiners(info_contenedores):
+    ide_posicion_tipo = [[(i+j[1], (None, None), j[1][-1:]) for j in
+                          info_contenedores[0][i]] for i in
+                         info_contenedores[0].keys()]
+    Lista_Contenedores = []
+    for ele in ide_posicion_tipo:
+        Lista_Contenedores += list(map(lambda x: Containers(*x), ele))
+    return Lista_Contenedores
 
 
 if __name__ == "__main__":
-    print(list(crear_barcos(cont_enviado, prog_arribos, info_barco)))
+    # print(list(crear_barcos(cont_enviado, prog_arribos, info_barco)))
+    print(crear_conteiners(cont_enviado))
+    # print("as"+"ph")
