@@ -1,5 +1,5 @@
 from collections import namedtuple
-from Proyecto.imports import info_barco, trabajo, cont_enviado, \
+from imports import info_barco, trabajo, cont_enviado, \
     tiempo_teps, info_patio, cont_gral, teps_gral, probabilidades, prog_arribos
 
 
@@ -33,8 +33,9 @@ def crear_conteiners(info_contenedores):
         Lista_Contenedores += list(map(lambda x: Containers(*x), ele))
     return Lista_Contenedores
 
-
+"""
 if __name__ == "__main__":
     # print(list(crear_barcos(cont_enviado, prog_arribos, info_barco)))
-    print(crear_conteiners(cont_enviado))
+    # print(crear_conteiners(cont_enviado))
     # print("as"+"ph")
+"""
