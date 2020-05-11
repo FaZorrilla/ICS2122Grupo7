@@ -1,10 +1,10 @@
 from collections import deque
 from random import random
-from Proyecto.imports import probabilidades
+from imports import probabilidades
 from statistics import mean
-from Proyecto.puerto import Puerto
-from Proyecto.entidades import lista_barcos
-from Proyecto.simulacion import lista_teps# Los teps después
+from puerto import Puerto
+from entidades import lista_barcos
+from simulacion import lista_teps # Los teps después
 # vendrán de otra parte y de otra forma, ojo con eso. Lo importnte para lo
 # que viene es que se entregue en forma de lista con clases dentro
 
