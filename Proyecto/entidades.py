@@ -33,9 +33,10 @@ def crear_conteiners(info_contenedores):
         Lista_Contenedores += list(map(lambda x: Containers(*x), ele))
     return Lista_Contenedores
 
-"""
+
+lista_barco = list(crear_barcos(cont_enviado, prog_arribos, info_barco))
+
 if __name__ == "__main__":
-    # print(list(crear_barcos(cont_enviado, prog_arribos, info_barco)))
+    print(list(crear_barcos(cont_enviado, prog_arribos, info_barco)))
     # print(crear_conteiners(cont_enviado))
-    # print("as"+"ph")
-"""
+

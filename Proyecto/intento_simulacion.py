@@ -41,10 +41,11 @@ class Simulacion:
 
     def entra_barco(self, dia):
         """
-        Esta property modela si llega o no un barco a la cola.
-        Se muestrea de una distribución de probabilidad uniforme. El método retorna
-        True si el valor entregado por la función random es mayor a un valor dado.
-        En este caso, es sencillo ver que retornará True un 20% de las veces.
+        Esta función lo que hace es determinar si hay en un barco en espera
+        para entrar y si logra entrar o no
+        :param dia: medida de tiempo en que corre la simulacion, esto debe
+        modelarse o cambiarse con la librería tiempo de momento es un int
+        :return: de momento solo dice que son prints que dice en qué está
         """
         probabilidad_por_dia = probabilidades[dia]
         for barco in self.barcos_en_espera:
@@ -72,6 +73,11 @@ class Simulacion:
                 print("La marea no lo permite")
 
     def cargar_barco(self, barco):
+        """
+        Lo que hace es llamar teps para contenedores que se deben cargar al barco
+        :param barco: namedtuple que tiene la información de barcos.
+        :return: prints que señala en qué está
+        """
         for contenedor in barco.lista_carga:
             if contenedor not in self.puerto.contenedor_esperando:
                 print("buscando y cargando el contenedor {}".format(contenedor))
@@ -91,12 +97,15 @@ class Simulacion:
                     if tep_seleccionado.ubicacion != \
                             ubicacion_contenedor:
                         tep_seleccionado.ruta += [
-                            ubicacion_contenedor, self.puerto.pos_barcos]
+                            ubicacion_contenedor, self.puerto.pos_barcos[
+                                barco]]
                         self.puerto.contenedor_esperando.append(contenedor)
                         print("El contenedor está a la espera que el tep "
                               "llegue por él")
                     else:
                         print("El contenedor está en un tep hacia el barco")
+                        tep_seleccionado.ruta.append(self.puerto.pos_barcos[
+                                                         barco])
                         # el tep debe avisarle al barco que llegó y cargó al
                         # llegar a su destino final y cambiando el valor
                         # self.barco_en_puerto.lista_carga
@@ -106,19 +115,60 @@ class Simulacion:
             else:
                 print("El contendor está esperando o siendo trasladado")
 
-
             # esto va en otro lado o puede ser un if
             # contenedor.pos in barco.pos barco.lista_carga.remove(
             # contenedor) pero recuerden que de momento solo es su ide en el
-            # primer for, no es una namedtuple aun 
+            # primer for, no es una namedtuple aun
 
     def descargar_barco(self, barco):
+        """
+        Lo que hace es llamar teps para contenedores que se deben descargar
+        al barco
+        :param barco: namedtuple que tiene la información de barcos.
+        :return: prints que señala en qué están
+        """
         for contenedor in barco.lista_descarga:
             print("buscando y descargando el contenedor {}".format(contenedor))
             barco.lista_descarga.remove(contenedor)
+            if filter(lambda x: x.trabajando == False, lista_teps):
+                # la
+                # funcion llamar
+                # debería marcalo como ocupado y hacer que se acercara
+                tep_seleccionado = list(filter(lambda x:
+                                               x.trabajando == False,
+                                               lista_teps))[0]
+                tep_seleccionado.trabajando = True
+                ubicacion_contenedor = self.puerto.ubicar_contenedor(contenedor)  # Esta
+                if tep_seleccionado.ubicacion != \
+                        ubicacion_contenedor:
+                    tep_seleccionado.ruta += [
+                        ubicacion_contenedor, self.puerto.pos_barcos]
+                    self.puerto.contenedor_esperando.append(contenedor)
+                    print("El contenedor está a la espera que el tep "
+                          "llegue por él")
+                else:
+                    print("El contenedor está siendo descargado justo ahora")
+                    tep_seleccionado.añadir_destino() # aqui hay un problema
+                    # de opti
+            else:
+                print("De momento no hay un tep disponible, deberá "
+                      "esperar")
 
+    def salida_barco(self, dia, barco):
+        if int(barco.partida)+1 == dia or (not barco.lista_carga and
+                                           not barco.lista_descarga):
+            print("El barco se fue, quedó {} conteiners por cargar y {} "
+                  "conteiners por descargar".format(barco.lista_carga,
+                                                    barco.lista_descarga))
+            self.barcos_en_puerto.remove(barco)
 
     def imprimir_estadisticas(self):
+        """
+        Esto falta editarlo por completo, pero basicamente es darse cuneta
+        que tiempo de atencion ya no es una lista sino un diccionario con
+        tupla sino me equivoco, acomodar datos y está
+        :return:
+        """
         tiempo_promedio = mean(self.tiempos_atencion)
         tiempo_total = sum(self.tiempos_atencion)
 
@@ -129,22 +179,31 @@ class Simulacion:
         print(f'Total de vehículos atendidos: {len(self.tiempos_atencion)}')
 
     def atencion_barco(self):
-        """Esta función maneja todo el proceso"""
+        """Esta función corre todas las funciones para cada día"""
 
         # Hacemos avanzar el reloj de la simulación día por día.
         # No importa si en ese día no pasa nada.
         for dia in range(self.max_tiempo):
             self.llega_barco(dia)
             self.entra_barco(dia)
-            for barco in self.barcos_en_puerto:
-                if barco.lista_carga:
-                    self.cargar_barco(barco)
-                if barco.lista_descarga:
-                    self.descargar_barco(barco)
-                else:
-                    print("El barco ha terminado sus operaciones")
-                    self.demora_total[barco.ide][1] = dia - self.demora_total[
-                        barco.ide][1]
+            for i in range(24):
+                for barco in self.barcos_en_puerto:
+                    if barco.lista_carga:
+                        self.cargar_barco(barco)
+                    if barco.lista_descarga:
+                        self.descargar_barco(barco)
+                    else:
+                        print("El barco ha terminado sus operaciones")
+                        self.demora_total[barco.ide][1] = dia - self.demora_total[
+                            barco.ide][1]
+                    self.salida_barco(dia, barco)
+                for tep in filter(lambda x: x.trabajando == True, lista_teps):
+                    tep.mover()
+                #Aqui falta la función mover teps... yo creo que eso necesita
+                # ticks o algo, se mueven muchas veces en un día. Igual ojo,
+                # porque la funcion cargar y descargar cambia la condicion de un
+                # tep por dia, no por sub unidad de tiempo, hay que modificar
+                # eso pronto.
 
 
 if __name__ == '__main__':
