@@ -27,7 +27,9 @@ class simulacion(Thread):
 class tep(Thread):
     def __init__(self, numero):
         self.numero = numero
-        self.trabajando = True
+        self.trabajando = False # cambiar a True
+        self.ruta = []
+        self.posicion = [0, 0]
 
     def run(self):
         print(f"Hola soy {self.numero}")
@@ -36,7 +38,33 @@ class tep(Thread):
             sleep(random(1,5))
             self.trabajando = False
         print("Recorcholis, se me acabo el trabajo")
-        
+
+    # invencion nata
+    def mover(self):
+        for ele in self.ruta:
+            if ele == "camion":
+                if self.posicion != [0, 0]:
+                    print("en camino")
+                    self.posicion[0] -= 20
+                else:
+                    print("Ya llegué al camión, soy libre")
+                    self.trabajando = False
+            else:
+                if self.posicion != [385, 0]:
+                    print("en camino")
+                    self.posicion[0] += 20
+                else:
+                    print("ya llegué al barco, soy libre")
+                    self.trabajando = False
+
+    def definir_destino(self):
+        # mientras solo son camiones para no usar el patio aun
+        self.ruta.append("camion")
+
+
+lista_teps = [tep(i) for i in range(30)]
+
+
 
 if __name__ == "__main__":
     puerto = simulacion(dias)

@@ -25,7 +25,7 @@ def crear_barcos(info_contenedores, info_arribos, info_barco):
 
 
 def crear_conteiners(info_contenedores):
-    ide_posicion_tipo = [[(i+j[1], (None, None), j[1][-1:]) for j in
+    ide_posicion_tipo = [[(i+j[1], [0, 0], j[1][-1:]) for j in
                           info_contenedores[0][i]] for i in
                          info_contenedores[0].keys()]
     Lista_Contenedores = []
@@ -35,6 +35,7 @@ def crear_conteiners(info_contenedores):
 
 
 lista_barco = list(crear_barcos(cont_enviado, prog_arribos, info_barco))
+lista_contenedores = list(crear_conteiners(cont_enviado))
 
 if __name__ == "__main__":
     print(list(crear_barcos(cont_enviado, prog_arribos, info_barco)))

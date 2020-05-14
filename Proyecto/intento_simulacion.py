@@ -1,9 +1,10 @@
 from collections import deque
+from functools import reduce
 from random import random
 from imports import probabilidades
 from statistics import mean
 from puerto import Puerto
-from entidades import lista_barcos
+from entidades import lista_barco, lista_contenedores
 from simulacion import lista_teps # Los teps después
 # vendrán de otra parte y de otra forma, ojo con eso. Lo importnte para lo
 # que viene es que se entregue en forma de lista con clases dentro
@@ -20,9 +21,10 @@ class Simulacion:
         self.barcos_en_espera = deque()
         self.puerto = Puerto()
         self.demora_total = {} #(barco ide: tiempo espera, tiempo atencion)
+        self.lista_contenedores_atendidos = []
 
     def llega_barco(self, dia):
-        llegan_hoy = filter(lambda x: int(x.arribo) == dia, lista_barcos)
+        llegan_hoy = filter(lambda x: int(x.arribo) == dia, lista_barco)
         self.barcos_en_espera += list(llegan_hoy)
         # ordenar prioridad de lista, mientras está ordenada como una cola.
         # Que puede no tener sentido de momento.
@@ -47,7 +49,7 @@ class Simulacion:
         modelarse o cambiarse con la librería tiempo de momento es un int
         :return: de momento solo dice que son prints que dice en qué está
         """
-        probabilidad_por_dia = probabilidades[dia]
+        probabilidad_por_dia = probabilidades[0][dia]
         for barco in self.barcos_en_espera:
             if barco.tipo == "A":
                 i = 0
@@ -60,7 +62,6 @@ class Simulacion:
                 if not self.esta_lleno():
                     print("Un barco ha entrado")
                     self.barcos_en_puerto.append(barco)
-                    self.barcos_en_espera.remove(barco)
                     print(self.STR_TEMPLATE.format(barco.ide, dia,
                                                    len(self.barcos_en_espera)))
                     self.demora_total[barco.ide] = (dia - int(barco.arribo),
@@ -72,6 +73,10 @@ class Simulacion:
             else:
                 print("La marea no lo permite")
 
+        for barcos in self.barcos_en_puerto:
+            if barcos in self.barcos_en_espera:
+                self.barcos_en_espera.remove(barcos)
+
     def cargar_barco(self, barco):
         """
         Lo que hace es llamar teps para contenedores que se deben cargar al barco
@@ -81,12 +86,8 @@ class Simulacion:
         for contenedor in barco.lista_carga:
             if contenedor not in self.puerto.contenedor_esperando:
                 print("buscando y cargando el contenedor {}".format(contenedor))
-                ubicacion_contenedor = self.puerto.ubicar_contenedor(
-                    contenedor) # Esta
-                # función
-                # debería
-                # localizar al contenedor que necesita el barco
-                if filter(lambda x: x.trabajando==False, lista_teps):
+
+                if list(filter(lambda x: x.trabajando==False, lista_teps)):
                     # la
                     # funcion llamar
                     # debería marcalo como ocupado y hacer que se acercara
@@ -94,6 +95,15 @@ class Simulacion:
                                                   x.trabajando==False,
                                               lista_teps))[0]
                     tep_seleccionado.trabajando = True
+                    # lo siguiente se quita después
+                    for contenedor_x in lista_contenedores:
+                        if contenedor_x.ide == barco.ide + contenedor[1]:
+                            print(contenedor_x)
+                            contenedor_x.posicion[0] = 385
+                            tep_seleccionado.ubicacion = contenedor_x.posicion
+                            ubicacion_contenedor = contenedor_x.posicion
+                            # ubicacion_contenedor =
+                            # self.puerto.ubicar_contenedor(contenedor)
                     if tep_seleccionado.ubicacion != \
                             ubicacion_contenedor:
                         tep_seleccionado.ruta += [
@@ -104,8 +114,8 @@ class Simulacion:
                               "llegue por él")
                     else:
                         print("El contenedor está en un tep hacia el barco")
-                        tep_seleccionado.ruta.append(self.puerto.pos_barcos[
-                                                         barco])
+                        tep_seleccionado.ruta.append(barco)
+                        # self.puerto.pos_barcos[barco]
                         # el tep debe avisarle al barco que llegó y cargó al
                         # llegar a su destino final y cambiando el valor
                         # self.barco_en_puerto.lista_carga
@@ -129,8 +139,7 @@ class Simulacion:
         """
         for contenedor in barco.lista_descarga:
             print("buscando y descargando el contenedor {}".format(contenedor))
-            barco.lista_descarga.remove(contenedor)
-            if filter(lambda x: x.trabajando == False, lista_teps):
+            if list(filter(lambda x: x.trabajando == False, lista_teps)):
                 # la
                 # funcion llamar
                 # debería marcalo como ocupado y hacer que se acercara
@@ -138,7 +147,14 @@ class Simulacion:
                                                x.trabajando == False,
                                                lista_teps))[0]
                 tep_seleccionado.trabajando = True
-                ubicacion_contenedor = self.puerto.ubicar_contenedor(contenedor)  # Esta
+                self.lista_contenedores_atendidos.append(contenedor)
+                for contenedor_x in lista_contenedores:
+                    if contenedor_x.ide == barco.ide+contenedor:
+                        contenedor_x.posicion = [385, 0]
+                        tep_seleccionado.ubicacion = contenedor_x.posicion
+                        ubicacion_contenedor = contenedor_x.posicion
+                #ubicacion_contenedor = self.puerto.ubicar_contenedor(
+                # contenedor)  # Esta
                 if tep_seleccionado.ubicacion != \
                         ubicacion_contenedor:
                     tep_seleccionado.ruta += [
@@ -148,11 +164,14 @@ class Simulacion:
                           "llegue por él")
                 else:
                     print("El contenedor está siendo descargado justo ahora")
-                    tep_seleccionado.añadir_destino() # aqui hay un problema
+                    tep_seleccionado.definir_destino() # aqui hay un problema
                     # de opti
             else:
                 print("De momento no hay un tep disponible, deberá "
                       "esperar")
+        for contenedor_x in self.lista_contenedores_atendidos:
+            if contenedor_x in barco.lista_descarga:
+                barco.lista_descarga.remove(contenedor_x)
 
     def salida_barco(self, dia, barco):
         if int(barco.partida)+1 == dia or (not barco.lista_carga and
@@ -169,21 +188,20 @@ class Simulacion:
         tupla sino me equivoco, acomodar datos y está
         :return:
         """
-        tiempo_promedio = mean(self.tiempos_atencion)
-        tiempo_total = sum(self.tiempos_atencion)
-
+        # tiempo_promedio = mean(self.tiempos_atencion)
+        # tiempo_total = sum(self.tiempos_atencion)
         print()
         print('Estadísticas:')
-        print(f'Tiempo promedio de atención {tiempo_promedio:6.2f} min.')
-        print(f'Tiempo total de atención {tiempo_total:6.2f} min')
-        print(f'Total de vehículos atendidos: {len(self.tiempos_atencion)}')
+        print(f'Tiempo  total de espera {reduce(lambda x, y: x+y,list(zip(*self.demora_total.values()))[0])} dias')
+        print(f'Tiempo total de atención {reduce(lambda x, y: x+y,list(zip(*self.demora_total.values()))[1])} dias')
+        print(f'Total de barcos atendidos: {len(self.demora_total)}')
 
     def atencion_barco(self):
         """Esta función corre todas las funciones para cada día"""
 
         # Hacemos avanzar el reloj de la simulación día por día.
         # No importa si en ese día no pasa nada.
-        for dia in range(self.max_tiempo):
+        for dia in range(1, self.max_tiempo):
             self.llega_barco(dia)
             self.entra_barco(dia)
             for i in range(24):
@@ -213,3 +231,4 @@ if __name__ == '__main__':
 
     simulacion = Simulacion(max_tiempo)
     simulacion.atencion_barco()
+    simulacion.imprimir_estadisticas()
