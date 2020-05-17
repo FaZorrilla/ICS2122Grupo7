@@ -13,14 +13,14 @@ Containers = namedtuple("Conteiners_type", ["ide", "posicion", "tipo"])
 
 def crear_barcos(info_contenedores, info_arribos, info_barco):
     ide_capacidad_arribo_partida_listacarga_listadescarga = \
-        [(i, *info_arribos[i][1:4], filter(lambda x: x[0]=="Carga",
-                                           info_contenedores[0][i]),
-         filter(lambda x: x[0]=="Descarga", info_contenedores[0][i]),
+        [(i, *info_arribos[i][1:4], list(filter(lambda x: x[0]=="Carga",
+                                           info_contenedores[0][i])),
+         list(filter(lambda x: x[0]=="Descarga", info_contenedores[0][i])),
          *info_barco[0][info_arribos[i][1]], False) for i in
          info_arribos.keys()]
 
     datos_barcos = ide_capacidad_arribo_partida_listacarga_listadescarga
-    Lista_Barcos = map(lambda x: Barcos(*x), datos_barcos)
+    Lista_Barcos = list(map(lambda x: Barcos(*x), datos_barcos))
     return Lista_Barcos
 
 

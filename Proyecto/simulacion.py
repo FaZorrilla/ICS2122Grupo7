@@ -24,7 +24,7 @@ class simulacion(Thread):
             for i in self.teps:
                 i.start()
 
-class tep(Thread):
+class tep:#
     def __init__(self, numero):
         self.numero = numero
         self.trabajando = False # cambiar a True
@@ -62,7 +62,7 @@ class tep(Thread):
         self.ruta.append("camion")
 
 
-lista_teps = [tep(i) for i in range(30)]
+lista_teps = [tep(i) for i in range(3000)]
 
 
 
