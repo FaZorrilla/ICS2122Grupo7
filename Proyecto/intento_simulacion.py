@@ -3,6 +3,7 @@ from functools import reduce
 from random import random
 from imports import probabilidades
 from statistics import mean
+from time import time
 from puerto import Puerto
 from entidades import lista_barco, lista_contenedores
 from simulacion import lista_teps # Los teps después
@@ -218,10 +219,10 @@ class Simulacion:
 
         # Hacemos avanzar el reloj de la simulación día por día.
         # No importa si en ese día no pasa nada.
-        for hora in range(1, self.max_tiempo*24):
-            if hora%24 == 0:
-                self.llega_barco(hora/24)
-                self.entra_barco(hora/24)
+        for minuto in range(1, self.max_tiempo*24*60):
+            if minuto%(24*60) == 0:
+                self.llega_barco(minuto/(24*60))
+                self.entra_barco(minuto/(24*60))
             for barco in self.barcos_en_puerto:
                 if barco.lista_carga:
                     self.cargar_barco(barco)
@@ -229,8 +230,8 @@ class Simulacion:
                     self.descargar_barco(barco)
                 else:
                     print("El barco ha terminado sus operaciones")
-                if hora%24 == 0:
-                    self.salida_barco(hora/24 , barco)
+                if minuto%(24*60) == 0:
+                    self.salida_barco(minuto/(24*60), barco)
             for tep in list(filter(lambda x: x.trabajando == True,
                                 lista_teps)):
                 tep.mover()
@@ -245,7 +246,6 @@ if __name__ == '__main__':
     # Define los tipos de vehículos y su tiempo de atención promedio
     # vehículos = {'moto': 1 / 8, 'auto': 1 / 15, 'camioneta': 1 / 20}
     max_tiempo = 30
-
     simulacion = Simulacion(max_tiempo)
     simulacion.atencion_barco()
     simulacion.imprimir_estadisticas()
