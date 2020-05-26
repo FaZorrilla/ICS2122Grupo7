@@ -1,4 +1,4 @@
-from collections import deque
+, from collections import deque
 from random import random
 from Proyecto.imports import probabilidades
 from statistics import mean
@@ -19,7 +19,8 @@ class Simulacion:
         self.barcos_en_puerto = []
         self.barcos_en_espera = deque()
         self.puerto = Puerto()
-        self.demora_total = {} #(barco ide: tiempo espera, tiempo atencion)
+        self.demora_total = {} #(barco ide: tiempo espera, tiempo atencion,
+        # cont_carga, cont_descarga)
 
     def llega_barco(self, dia):
         llegan_hoy = filter(lambda x: int(x.arribo) == dia, lista_barcos)
@@ -63,7 +64,8 @@ class Simulacion:
                     print(self.STR_TEMPLATE.format(barco.ide, dia,
                                                    len(self.barcos_en_espera)))
                     self.demora_total[barco.ide] = (dia - int(barco.arribo),
-                                                    dia) #asumismos que se
+                                                    dia, 0, 0) #asumismos
+                    # que se
                     # va el mismo dia hasta que calculamos realmente cuando
                     # se va y le hacemos filter, map(dia-el valor que tiene)
                 else:
