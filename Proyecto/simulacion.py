@@ -4,6 +4,7 @@ from time import sleep
 from random import random
 from imports import *
 from entidades import *
+import Patio
 
 
 numero = [1, 2]
@@ -33,6 +34,7 @@ class tep:#
         self.posicion = [0, 0]
         self.contador_camion = 0
         self.contador_barco = 0
+        self.corriendo = True
 
     def run(self):
         print(f"Hola soy {self.numero}")
@@ -76,6 +78,35 @@ class tep:#
     def definir_destino(self):
         # mientras solo son camiones para no usar el patio aun
         self.ruta.append("camion")
+
+    def run(self):
+        while self.corriendo:
+            pass
+
+    def iterative_deepening_a_star(tree, heuristic, start, goal):
+    """
+    Performs the iterative deepening A Star (A*) algorithm to find the shortest path from a start to a target node.
+    Can be modified to handle graphs by keeping track of already visited nodes.
+    :param tree:      Patio
+    :param heuristic: distancia entre start y goal
+    :param start:      root.
+    :param goal:      The node we're searching for.
+    :return: number shortest distance to the goal node. Can be easily modified to return the path.
+    """
+    threshold = heuristic[start][goal]
+    while True:
+        print("Iteration with threshold: " + str(threshold))
+        distance = iterative_deepening_a_star_rec(tree, heuristic, start, goal, 0, threshold)
+        if distance == float("inf"):
+            # Node not found and no more nodes to visit
+            return -1
+        elif distance < 0:
+            # if we found the node, the function returns the negative distance
+            print("Found the node we're looking for!")
+            return -distance
+        else:
+            # if it hasn't found the node, it returns the (positive) next-bigger threshold
+            threshold = distance
 
 
 lista_teps = [tep(i) for i in range(15)]
