@@ -13,6 +13,7 @@ dias = 5
 
 class simulacion(Thread):
     def __init__(self, dias):
+        super().__init__()
         self.dia = 0
         self.teps = list()
         self.max = dias
@@ -26,17 +27,18 @@ class simulacion(Thread):
             for i in self.teps:
                 i.start()
 
-class tep:#
+class tep(Thread):#
     def __init__(self, numero):
+        super().__init__()
         self.numero = numero
-        self.trabajando = False # cambiar a True
+        self.trabajando = False # cambiar a True, este es para ver si esta haciendo algo o no
         self.ruta = []
         self.posicion = [0, 0]
         self.contador_camion = 0
         self.contador_barco = 0
-        self.corriendo = True
+        self.corriendo = True #este es para parar el thread, while self.corriendo
 
-    def run(self):
+    def run(self): #cambiar el run por lo que es djikstra, agregar los movimientos, etc. Crear funciones para cosas con importancia que se llamen en el run
         print(f"Hola soy {self.numero}")
         while self.trabajando:
             print("Estoy trabajando wei")
